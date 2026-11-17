@@ -6,7 +6,7 @@
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
   <title>Schedulr — Straight Answers for D&amp;D Scheduling</title>
-  <meta name="description" content="A Grindr-inspired, zero-fluff D&D session scheduler. Tap DTF, Maybe, or Pass." />
+  <meta name="description" content="A zero-fluff D&D session scheduler. Tap DTF, Maybe, or Pass." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -18,7 +18,7 @@
   <div id="toast-container" aria-live="polite"></div>
 
   <div class="app-shell">
-    <!-- Compact Sticky Header -->
+    <!-- Clean Header -->
     <header class="top-header">
       <div class="brand-lockup" id="brand-home-btn" role="button" tabindex="0" title="Schedulr Home">
         <svg class="brand-logo" viewBox="0 0 64 64" width="34" height="34" aria-hidden="true">
@@ -42,45 +42,22 @@
           <span class="brand-tagline">Straight Answers Only</span>
         </div>
       </div>
-
-      <div class="header-right">
-        <button type="button" class="pill-toggle" id="how-it-works-btn" title="Show or hide How It Works">
-          <span>❓ How It Works</span>
-        </button>
-        <button type="button" class="btn-amber-sm" id="header-invite-btn">🔗 Invite Party</button>
-      </div>
     </header>
 
-    <!-- Plain-English 3-Step Guide -->
-    <section id="how-it-works-card" class="how-card" aria-label="How Schedulr Works">
-      <div class="how-header-row">
-        <div>
-          <h1 class="how-title">How Schedulr Works</h1>
-          <p class="how-sub">No accounts. No servers. Everything travels inside your links so nobody has to read 20 texts to book one session.</p>
+    <!-- Always-Visible Plain-English Overview -->
+    <section class="explainer-bar" aria-label="How Schedulr Works">
+      <div class="explainer-grid">
+        <div class="explainer-item">
+          <strong>⚡ Check-In (For Players)</strong>
+          <p>Enter your name and tap <b>🔥 DTF</b> (Available), <b>🎲 Maybe</b>, or <b>💀 Pass</b> (Unavailable) for each date, then copy your <b>Reply Link</b> for the DM.</p>
         </div>
-        <button type="button" class="btn-ghost-xs" id="close-how-btn">Got it ✕</button>
-      </div>
-      <div class="how-steps-grid">
-        <div class="how-step">
-          <div class="how-step-num">1</div>
-          <div>
-            <strong>DM sets the dates</strong>
-            <p>Go to <b>👑 DM Setup</b>, pick your dates, and copy the <b>Invite Link</b> to your group chat.</p>
-          </div>
+        <div class="explainer-item">
+          <strong>🟨 The Grid (Session Dashboard)</strong>
+          <p>Ranks every proposed date by <b>🔥 DTF</b> votes to highlight the #1 winning night, and shows every party member's availability.</p>
         </div>
-        <div class="how-step">
-          <div class="how-step-num">2</div>
-          <div>
-            <strong>Players tap 3 buttons</strong>
-            <p>Players open the link, enter their name, and tap <b>🔥 DTF</b>, <b>🎲 Maybe</b>, or <b>💀 Pass</b> for each date (no 5-paragraph texts allowed).</p>
-          </div>
-        </div>
-        <div class="how-step">
-          <div class="how-step-num">3</div>
-          <div>
-            <strong>Pick the winning night</strong>
-            <p>Players send back their <b>Reply Link</b>. Opening (or pasting) it adds them to <b>🟨 The Grid</b> and highlights the best night to play.</p>
-          </div>
+        <div class="explainer-item">
+          <strong>👑 DM Setup (For the DM)</strong>
+          <p>Pick the dates to propose, copy the <b>Invite Link</b> for the group chat, and paste players' <b>Reply Links</b> to combine everyone's answers on <b>The Grid</b>.</p>
         </div>
       </div>
     </section>
@@ -96,15 +73,15 @@
     <main class="main-content">
 
       <!-- =========================================================
-           VIEW 1: STREAMLINED CHECK-IN
+           VIEW 1: CHECK-IN
            ========================================================= -->
       <section id="view-checkin" class="view-panel active" aria-label="Player Check-In">
         <div class="card checkin-shell">
           <div class="checkin-top-bar">
-            <div class="checkin-campaign-label" id="checkin-campaign-title">Holiday D&amp;D Gauntlet</div>
+            <h1 class="checkin-campaign-label" id="checkin-campaign-title">Holiday D&amp;D Gauntlet</h1>
+            <p class="tab-explainer">Tap 1 of the 3 buttons for each date below. Your answers update <strong>The Grid</strong> immediately, and at the end you'll get a Reply Link to send your DM.</p>
           </div>
 
-          <!-- Compact 2-Field Identity Row -->
           <div class="identity-row">
             <div class="field-group">
               <label for="player-name-input">Your Name</label>
@@ -126,7 +103,6 @@
             <div class="deck-progress-bar">
               <div class="deck-progress-text">
                 <span id="deck-progress-label">Date 1 of 6</span>
-                <span class="shortcut-hint">Keys: 1 • 2 • 3</span>
               </div>
               <div class="progress-track">
                 <div class="progress-fill" id="deck-progress-fill" style="width: 0%;"></div>
@@ -136,7 +112,7 @@
             <div class="swipe-card" id="active-date-card">
               <div class="swipe-card-body">
                 <div class="card-weekday" id="card-weekday">SATURDAY</div>
-                <div class="card-date-main" id="card-date-main">Dec 20 • 7:00 PM</div>
+                <div class="card-date-main" id="card-date-main">Nov 28 • 7:00 PM</div>
                 <div class="card-party-pulse" id="card-party-pulse"></div>
               </div>
 
@@ -159,9 +135,8 @@
               </div>
 
               <div class="swipe-card-footer">
-                <button type="button" class="btn-ghost-xs" id="prev-card-btn">⬅️ Prev</button>
-                <span class="current-vote-indicator" id="current-vote-indicator">Tap an answer</span>
-                <button type="button" class="btn-ghost-xs" id="next-card-btn">Skip ➡️</button>
+                <button type="button" class="btn-ghost-xs" id="prev-card-btn">⬅️ Back</button>
+                <span class="current-vote-indicator" id="current-vote-indicator"></span>
               </div>
             </div>
           </div>
@@ -169,15 +144,12 @@
           <!-- Completion Card -->
           <div id="checkin-complete-card" class="complete-box hidden">
             <div class="complete-badge">🎉 ANSWERS LOCKED</div>
-            <h2 class="complete-title">Now Send Your Reply to the DM!</h2>
-            <p class="section-subtitle">Copy your Reply Link and send it back in the group chat or DM.</p>
+            <h2 class="complete-title">Now Send Your Reply Link to the DM</h2>
+            <p class="section-subtitle">Since Schedulr has no server, send this link to your DM. When they open or paste it, your answers are added to their Grid.</p>
 
             <div class="summary-chips" id="player-summary-chips"></div>
 
-            <div class="share-actions-grid">
-              <button type="button" class="btn-amber" id="copy-response-link-btn">🔗 Copy Reply Link for DM</button>
-              <button type="button" class="btn-secondary" id="copy-response-code-btn">💬 Copy Summary Text</button>
-            </div>
+            <button type="button" class="btn-amber complete-primary-btn" id="copy-response-link-btn">📋 Copy Reply Link to Send DM</button>
 
             <div class="complete-footer-actions">
               <button type="button" class="btn-ghost-xs" id="goto-grid-after-checkin-btn">🟨 View Grid</button>
@@ -205,6 +177,10 @@
       <section id="view-grid" class="view-panel" aria-label="The Grid">
         <div class="best-match-banner" id="best-match-banner"></div>
 
+        <p class="tab-explainer grid-intro">
+          Dates are ranked by the most <strong>🔥 DTF</strong> votes (4+ DTF = <strong>MATCH</strong>). Click any <strong>Date</strong> to see who can make it, or click any <strong>Player</strong> to see their full schedule.
+        </p>
+
         <div class="grid-section">
           <div class="grid-section-header">
             <h2 class="section-title">📅 Dates</h2>
@@ -223,21 +199,19 @@
       </section>
 
       <!-- =========================================================
-           VIEW 3: DM SETUP (2 Clean Cards)
+           VIEW 3: DM SETUP
            ========================================================= -->
       <section id="view-dm" class="view-panel" aria-label="DM Setup">
-        <!-- Card 1: Campaign & Dates -->
+        <!-- Card 1 -->
         <div class="card">
-          <h2 class="section-title">👑 Campaign &amp; Dates</h2>
+          <h2 class="section-title">1. Set Dates &amp; Copy Invite Link</h2>
           <div class="field-group" style="margin-top: 12px;">
             <label for="dm-campaign-title">Campaign Name</label>
             <input type="text" id="dm-campaign-title" maxlength="48" placeholder="e.g. Holiday D&D Gauntlet" />
           </div>
 
-          <div class="preset-grid">
-            <button type="button" class="btn-preset" data-preset="thanksgiving">🦃 Thanksgiving</button>
-            <button type="button" class="btn-preset" data-preset="december">🎄 Dec Weekends</button>
-            <button type="button" class="btn-preset" data-preset="nye">🎆 New Year's</button>
+          <div class="preset-grid-two">
+            <button type="button" class="btn-preset" data-preset="december">🎄 Holiday Weekends</button>
             <button type="button" class="btn-preset" data-preset="weekends">📅 Next Weekends</button>
           </div>
 
@@ -250,22 +224,21 @@
           <div class="dm-date-list" id="dm-date-list"></div>
 
           <div class="btn-row" style="margin-top: 14px;">
-            <button type="button" class="btn-amber" id="copy-campaign-link-btn">🔗 Copy Invite Link</button>
-            <button type="button" class="btn-secondary" id="copy-savage-invite-btn">💬 Copy Group Text</button>
+            <button type="button" class="btn-amber" id="copy-campaign-link-btn">🔗 Copy Invite Link for Group Chat</button>
           </div>
         </div>
 
-        <!-- Card 2: Add a Player's Reply -->
+        <!-- Card 2 -->
         <div class="card">
-          <h2 class="section-title">📥 Add a Player's Reply</h2>
-          <p class="section-subtitle">Click a player's Reply Link in your chat — or paste their message here — to add their answers to The Grid.</p>
+          <h2 class="section-title">2. Add Player Replies to Your Grid</h2>
+          <p class="section-subtitle">When players finish Check-In, they send you a Reply Link (<code>?r=...</code>). Click their link in chat or paste it below to add their answers to your Grid.</p>
           <div class="merge-row">
-            <input type="text" id="import-response-input" placeholder="Paste a player's Reply Link or summary message here" aria-label="Player reply link or message" />
-            <button type="button" class="btn-amber-sm" id="import-response-btn">⚡ Add to Grid</button>
+            <input type="text" id="import-response-input" placeholder="Paste a player's Reply Link here" aria-label="Player reply link" />
+            <button type="button" class="btn-amber-sm" id="import-response-btn">⚡ Add Player to Grid</button>
           </div>
           <div class="btn-row" style="margin-top: 12px;">
-            <button type="button" class="btn-ghost-xs" id="clear-players-btn">🧹 Start Fresh (Clear Sample Party)</button>
-            <button type="button" class="btn-ghost-xs" id="reset-demo-btn">🎭 Load Sample Party</button>
+            <button type="button" class="btn-ghost-xs" id="clear-players-btn">🧹 Clear Sample Party</button>
+            <button type="button" class="btn-ghost-xs" id="reset-demo-btn">🎭 Reload Sample Party</button>
           </div>
         </div>
       </section>
@@ -304,27 +277,6 @@
       <p id="roast-modal-message" class="roast-message"></p>
       <div class="roast-rule">Schedulr accepts 3 answers only: 🔥 DTF, 🎲 Maybe, or 💀 Pass.</div>
       <button type="button" class="btn-amber" id="roast-modal-dismiss">Fine, I'll Tap a Button</button>
-    </div>
-  </div>
-
-  <!-- INVITE MODAL -->
-  <div id="invite-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="invite-modal-title">
-    <div class="modal-sheet">
-      <button type="button" class="modal-close" id="invite-modal-close" aria-label="Close invite modal">✕</button>
-      <h2 id="invite-modal-title" class="section-title">🔗 Invite Your Party</h2>
-      <p class="section-subtitle">Drop this in your group chat. Players tap 3 buttons and send back their Reply Link.</p>
-      <div class="field-group" style="margin-top: 12px;">
-        <label for="invite-modal-url">Invite Link</label>
-        <input type="text" id="invite-modal-url" readonly />
-      </div>
-      <div class="field-group" style="margin-top: 10px;">
-        <label for="invite-modal-text">Group Message</label>
-        <textarea id="invite-modal-text" rows="3" readonly></textarea>
-      </div>
-      <div class="btn-row" style="margin-top: 14px;">
-        <button type="button" class="btn-amber" id="invite-copy-url-btn">🔗 Copy Invite Link</button>
-        <button type="button" class="btn-secondary" id="invite-copy-msg-btn">💬 Copy Group Text</button>
-      </div>
     </div>
   </div>
 

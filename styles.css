@@ -146,113 +146,61 @@ body {
   gap: 8px;
 }
 
-.pill-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--border-amber);
-  background: rgba(255, 184, 0, 0.1);
-  color: var(--amber);
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.16s ease;
-}
-
-.pill-toggle:hover {
-  background: rgba(255, 184, 0, 0.2);
-}
-
-.pill-toggle.is-active {
-  background: rgba(255, 184, 0, 0.22);
-}
-
-/* Plain-English 3-Step Guide */
-.how-card {
+/* Always-Visible Plain-English Overview */
+.explainer-bar {
   margin-top: 14px;
-  padding: 16px;
+  padding: 14px;
   border-radius: var(--radius-lg);
-  background: linear-gradient(155deg, rgba(255, 184, 0, 0.08), rgba(20, 20, 26, 0.96));
-  border: 1px solid rgba(255, 184, 0, 0.35);
-  box-shadow: var(--shadow-card);
+  background: linear-gradient(155deg, rgba(255, 184, 0, 0.07), rgba(20, 20, 26, 0.96));
+  border: 1px solid rgba(255, 184, 0, 0.32);
 }
 
-.how-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.how-title {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.3rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--amber);
-}
-
-.how-sub {
-  margin: 2px 0 0;
-  font-size: 0.84rem;
-  color: var(--text-secondary);
-}
-
-.how-steps-grid {
+.explainer-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
 }
 
 @media (min-width: 640px) {
-  .how-steps-grid {
+  .explainer-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-.how-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
+.explainer-item {
   padding: 10px 11px;
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-subtle);
 }
 
-.how-step strong {
+.explainer-item strong {
   display: block;
-  font-size: 0.86rem;
-  color: var(--text-primary);
-  margin-bottom: 2px;
+  font-size: 0.84rem;
+  color: var(--amber);
+  margin-bottom: 4px;
 }
 
-.how-step p {
+.explainer-item p {
   margin: 0;
   font-size: 0.78rem;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.42;
 }
 
-.how-step-num {
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--amber-bright), var(--flame));
-  color: #0b0b0e;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.tab-explainer {
+  margin: 4px 0 0;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.grid-intro {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
 }
 
 /* Primary Navigation Tabs */
@@ -556,16 +504,13 @@ textarea:focus {
 }
 
 .checkin-top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
   margin-bottom: 14px;
 }
 
 .checkin-campaign-label {
+  margin: 0;
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: 1.4rem;
   font-weight: 800;
   text-transform: uppercase;
   color: var(--amber);
@@ -1198,17 +1143,17 @@ textarea:focus {
    VIEW 3: DM SETUP (2 Clean Cards)
    ========================================================================== */
 
-.preset-grid {
+.complete-primary-btn {
+  width: 100%;
+  max-width: 340px;
+  margin-bottom: 12px;
+}
+
+.preset-grid-two {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   margin: 12px 0;
-}
-
-@media (min-width: 560px) {
-  .preset-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
 .btn-preset {

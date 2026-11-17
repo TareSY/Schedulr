@@ -6,7 +6,7 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'schedulr_state_v3';
+  const STORAGE_KEY = 'schedulr_state_v4';
 
   // --------------------------------------------------------------------------
   // Security & Input Sanitization Layer
@@ -78,7 +78,6 @@
       : 'Barbarian (Down to Roll)';
     const rawHosting = cleanString(raw.hosting, 30, '🚗 Can Travel');
     const safeHosting = VALID_HOSTING.has(rawHosting) ? rawHosting : '🚗 Can Travel';
-    const rawTaps = Number(raw.taps);
 
     return {
       id: cleanId(raw.id, 'p-' + Math.random().toString(36).slice(2, 8)),
@@ -86,7 +85,6 @@
       classVibe: safeClass,
       hosting: safeHosting,
       online: raw.online !== false,
-      taps: Number.isFinite(rawTaps) ? Math.max(0, Math.min(9999, Math.floor(rawTaps))) : 0,
       votes: cleanVoteMap(raw.votes)
     };
   }
@@ -160,7 +158,6 @@
           classVibe: 'Paladin (Host)',
           hosting: '🏠 Can Host',
           online: true,
-          taps: 4,
           votes: { d1: 'dtf', d2: 'dtf', d3: 'dtf', d4: 'dtf', d5: 'dtf', d6: 'dtf' }
         },
         {
@@ -169,7 +166,6 @@
           classVibe: 'Barbarian (Down to Roll)',
           hosting: '🏠 Can Host',
           online: true,
-          taps: 7,
           votes: { d1: 'dtf', d2: 'maybe', d3: 'dtf', d4: 'dtf', d5: 'dtf', d6: 'maybe' }
         },
         {
@@ -178,7 +174,6 @@
           classVibe: 'Bard (Brings Drinks)',
           hosting: '🍕 Brings Snacks',
           online: true,
-          taps: 5,
           votes: { d1: 'maybe', d2: 'dtf', d3: 'pass', d4: 'dtf', d5: 'dtf', d6: 'dtf' }
         },
         {
@@ -187,7 +182,6 @@
           classVibe: 'Wizard (VTT Only)',
           hosting: '💻 Remote/VTT',
           online: true,
-          taps: 2,
           votes: { d1: 'dtf', d2: 'dtf', d3: 'maybe', d4: 'dtf', d5: 'pass', d6: 'dtf' }
         },
         {
@@ -196,7 +190,6 @@
           classVibe: 'Rogue (Always Late)',
           hosting: '🚗 Can Travel',
           online: false,
-          taps: 19,
           votes: { d1: 'pass', d2: 'maybe' }
         }
       ]
@@ -208,7 +201,6 @@
   // --------------------------------------------------------------------------
   const defaultState = {
     activeView: 'checkin',
-    hideHowItWorks: false,
     campaign: createSampleCampaign(),
     currentPlayer: {
       id: 'p-you-' + Math.random().toString(36).slice(2, 7),
@@ -227,6 +219,7 @@
     try {
       localStorage.removeItem('grindm_state_v1');
       localStorage.removeItem('schedulr_state_v2');
+      localStorage.removeItem('schedulr_state_v3');
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw || raw.length > 262144) return structuredCloneCompat(defaultState);
       const parsed = safeJsonParse(raw);
@@ -240,7 +233,6 @@
 
       return {
         activeView: VALID_VIEWS.has(parsed.activeView) ? parsed.activeView : 'checkin',
-        hideHowItWorks: Boolean(parsed.hideHowItWorks),
         campaign: sanitizeCampaign(parsed.campaign, baseCamp),
         currentPlayer: {
           id: cleanId(cp.id, defaultState.currentPlayer.id),
@@ -434,7 +426,6 @@
         classVibe: data.p.c || deriveClassVibe(data.p.n, data.p.h),
         hosting: data.p.h,
         online: true,
-        taps: 1,
         votes: cleanVoteMap(data.p.v)
       });
 
@@ -465,8 +456,7 @@
     if (idx >= 0) {
       campaign.players[idx] = {
         ...campaign.players[idx],
-        ...safePlayer,
-        taps: campaign.players[idx].taps || safePlayer.taps || 0
+        ...safePlayer
       };
     } else {
       campaign.players.unshift(safePlayer);
@@ -603,29 +593,16 @@
   // 7. Preset Dates Helper
   // --------------------------------------------------------------------------
   function generatePresetDates(presetKey) {
-    const map = {
-      thanksgiving: [
-        { id: 'tg1', date: '2026-11-25', label: 'Nov 25', weekday: 'WEDNESDAY', time: '7:30 PM', holiday: true },
-        { id: 'tg2', date: '2026-11-27', label: 'Nov 27', weekday: 'FRIDAY', time: '7:00 PM', holiday: true },
-        { id: 'tg3', date: '2026-11-28', label: 'Nov 28', weekday: 'SATURDAY', time: '2:00 PM', holiday: true },
-        { id: 'tg4', date: '2026-11-29', label: 'Nov 29', weekday: 'SUNDAY', time: '5:00 PM', holiday: true }
-      ],
-      december: [
+    if (presetKey === 'december') {
+      return [
         { id: 'dc1', date: '2026-12-05', label: 'Dec 5', weekday: 'SATURDAY', time: '7:00 PM', holiday: true },
         { id: 'dc2', date: '2026-12-11', label: 'Dec 11', weekday: 'FRIDAY', time: '7:30 PM', holiday: true },
         { id: 'dc3', date: '2026-12-12', label: 'Dec 12', weekday: 'SATURDAY', time: '6:00 PM', holiday: true },
         { id: 'dc4', date: '2026-12-19', label: 'Dec 19', weekday: 'SATURDAY', time: '7:00 PM', holiday: true },
         { id: 'dc5', date: '2026-12-20', label: 'Dec 20', weekday: 'SUNDAY', time: '4:00 PM', holiday: true }
-      ],
-      nye: [
-        { id: 'ny1', date: '2026-12-27', label: 'Dec 27', weekday: 'SUNDAY', time: '5:00 PM', holiday: true },
-        { id: 'ny2', date: '2026-12-30', label: 'Dec 30', weekday: 'WEDNESDAY', time: '7:00 PM', holiday: true },
-        { id: 'ny3', date: '2026-12-31', label: 'Dec 31', weekday: 'THURSDAY', time: '8:00 PM', holiday: true },
-        { id: 'ny4', date: '2027-01-02', label: 'Jan 2', weekday: 'SATURDAY', time: '6:00 PM', holiday: true }
-      ],
-      weekends: getUpcomingWeekends()
-    };
-    return map[presetKey] || getUpcomingWeekends();
+      ];
+    }
+    return getUpcomingWeekends();
   }
 
   function getUpcomingWeekends() {
@@ -659,10 +636,6 @@
   // 8. DOM References
   // --------------------------------------------------------------------------
   const els = {
-    howItWorksBtn: document.getElementById('how-it-works-btn'),
-    howItWorksCard: document.getElementById('how-it-works-card'),
-    closeHowBtn: document.getElementById('close-how-btn'),
-    headerInviteBtn: document.getElementById('header-invite-btn'),
     gridCountBadge: document.getElementById('grid-count-badge'),
 
     navTabs: document.querySelectorAll('.nav-tab'),
@@ -687,13 +660,11 @@
     cardPartyPulse: document.getElementById('card-party-pulse'),
     verdictButtons: document.querySelectorAll('.btn-verdict'),
     prevCardBtn: document.getElementById('prev-card-btn'),
-    nextCardBtn: document.getElementById('next-card-btn'),
     currentVoteIndicator: document.getElementById('current-vote-indicator'),
 
     checkinCompleteCard: document.getElementById('checkin-complete-card'),
     playerSummaryChips: document.getElementById('player-summary-chips'),
     copyResponseLinkBtn: document.getElementById('copy-response-link-btn'),
-    copyResponseCodeBtn: document.getElementById('copy-response-code-btn'),
     gotoGridBtn: document.getElementById('goto-grid-after-checkin-btn'),
     editAnswersBtn: document.getElementById('edit-answers-btn'),
 
@@ -715,7 +686,6 @@
     addCustomDateBtn: document.getElementById('add-custom-date-btn'),
     dmDateList: document.getElementById('dm-date-list'),
     copyCampaignLinkBtn: document.getElementById('copy-campaign-link-btn'),
-    copySavageInviteBtn: document.getElementById('copy-savage-invite-btn'),
     importResponseInput: document.getElementById('import-response-input'),
     importResponseBtn: document.getElementById('import-response-btn'),
     resetDemoBtn: document.getElementById('reset-demo-btn'),
@@ -728,12 +698,6 @@
     roastModal: document.getElementById('roast-modal'),
     roastModalMessage: document.getElementById('roast-modal-message'),
     roastModalDismiss: document.getElementById('roast-modal-dismiss'),
-    inviteModal: document.getElementById('invite-modal'),
-    inviteModalClose: document.getElementById('invite-modal-close'),
-    inviteModalUrl: document.getElementById('invite-modal-url'),
-    inviteModalText: document.getElementById('invite-modal-text'),
-    inviteCopyUrlBtn: document.getElementById('invite-copy-url-btn'),
-    inviteCopyMsgBtn: document.getElementById('invite-copy-msg-btn'),
 
     toastContainer: document.getElementById('toast-container'),
     confettiLayer: document.getElementById('confetti-layer')
@@ -753,8 +717,6 @@
   function renderHeader() {
     const camp = getActiveCampaign();
     els.gridCountBadge.textContent = String(camp.players.length);
-    els.howItWorksCard.classList.toggle('hidden', state.hideHowItWorks);
-    els.howItWorksBtn.classList.toggle('is-active', !state.hideHowItWorks);
   }
 
   function renderNav() {
@@ -826,10 +788,9 @@
     if (myVote === 'dtf') els.currentVoteIndicator.textContent = 'Picked: 🔥 DTF';
     else if (myVote === 'maybe') els.currentVoteIndicator.textContent = 'Picked: 🎲 Maybe';
     else if (myVote === 'pass') els.currentVoteIndicator.textContent = 'Picked: 💀 Pass';
-    else els.currentVoteIndicator.textContent = 'Tap 1 of 3';
+    else els.currentVoteIndicator.textContent = '';
 
-    els.prevCardBtn.disabled = state.deckIndex === 0;
-    els.nextCardBtn.textContent = state.deckIndex === dates.length - 1 ? 'Finish ➡️' : 'Skip ➡️';
+    els.prevCardBtn.classList.toggle('hidden', state.deckIndex === 0);
   }
 
   function renderCompletionSummary() {
@@ -882,6 +843,12 @@
     return { dtf, maybe, pass, pending, pct, isMatch, dtfPlayers, maybePlayers, passPlayers, pendingPlayers };
   }
 
+  function copyNudgeForPlayer(player, camp) {
+    const url = buildCampaignShareUrl(camp);
+    const msg = `Hey ${player.name} 👀 Quick reminder to mark your dates for "${camp.title}" on Schedulr (3 taps, no essays): ${url}`;
+    copyText(msg, `📋 Reminder copied for ${player.name}!`);
+  }
+
   function renderGrid() {
     const camp = getActiveCampaign();
     const scoredDates = camp.dates.map((dt) => ({ dt, stats: getDateStats(camp, dt.id) }));
@@ -914,7 +881,7 @@
         <div class="best-match-info">
           <div class="best-match-kicker">🟨 THE GRID</div>
           <h2>Waiting for Player Replies</h2>
-          <p class="best-match-sub">Tap through Check-In or share your Invite Link from <b>👑 DM Setup</b>.</p>
+          <p class="best-match-sub">Complete Check-In or paste a player's Reply Link in <b>👑 DM Setup</b>.</p>
         </div>
       `;
     }
@@ -957,12 +924,15 @@
     // Party Grid
     els.playersShownPill.textContent = `${camp.players.length}`;
     if (camp.players.length === 0) {
-      els.partyCascadeGrid.innerHTML = `<div class="empty-grid-state">No players added yet. Share your Invite Link or check in!</div>`;
+      els.partyCascadeGrid.innerHTML = `<div class="empty-grid-state">No players added yet. Send your Invite Link from <strong>DM Setup</strong>!</div>`;
     } else {
       els.partyCascadeGrid.innerHTML = camp.players
         .map((p) => {
           const votes = p.votes || {};
           const dtfCount = camp.dates.filter((d) => votes[d.id] === 'dtf').length;
+          const answeredCount = camp.dates.filter((d) => Boolean(votes[d.id])).length;
+          const incomplete = answeredCount < camp.dates.length;
+
           return `
             <article class="grid-tile" data-player-detail="${escapeHtml(p.id)}">
               <div class="player-avatar-wrap">
@@ -973,10 +943,12 @@
                   <span class="${p.online ? 'online-dot-sm' : 'offline-dot-sm'}"></span>
                   <span>${escapeHtml(p.name)}</span>
                 </div>
-                <div class="tile-sub">${escapeHtml(p.hosting)} • ${dtfCount} DTF</div>
-                <button type="button" class="tap-tile-btn" data-tap-player="${escapeHtml(p.id)}">
-                  🔥 Tap (${p.taps || 0})
-                </button>
+                <div class="tile-sub">${escapeHtml(p.hosting)} • ${incomplete ? `${answeredCount}/${camp.dates.length} answered` : `${dtfCount} DTF`}</div>
+                ${
+                  incomplete
+                    ? `<button type="button" class="tap-tile-btn" data-nudge-player="${escapeHtml(p.id)}">📋 Copy Nudge</button>`
+                    : ''
+                }
               </div>
             </article>
           `;
@@ -985,15 +957,16 @@
 
       els.partyCascadeGrid.querySelectorAll('[data-player-detail]').forEach((tile) => {
         tile.addEventListener('click', (e) => {
-          if (e.target.closest('[data-tap-player]')) return;
+          if (e.target.closest('[data-nudge-player]')) return;
           openPlayerDetailModal(tile.dataset.playerDetail);
         });
       });
 
-      els.partyCascadeGrid.querySelectorAll('[data-tap-player]').forEach((btn) => {
+      els.partyCascadeGrid.querySelectorAll('[data-nudge-player]').forEach((btn) => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
-          sendTapToPlayer(btn.dataset.tapPlayer, btn);
+          const p = camp.players.find((x) => x.id === btn.dataset.nudgePlayer);
+          if (p) copyNudgeForPlayer(p, camp);
         });
       });
     }
@@ -1070,20 +1043,12 @@
       <div class="breakdown-list">${breakdown}</div>
 
       <div class="btn-row">
-        <button type="button" class="btn-amber" id="modal-send-tap-btn">🔥 Tap (${p.taps || 0})</button>
-        <button type="button" class="btn-secondary" id="modal-copy-nudge-btn">📋 Copy Nudge</button>
+        <button type="button" class="btn-amber" id="modal-copy-nudge-btn">📋 Copy Nudge</button>
       </div>
     `;
 
-    document.getElementById('modal-send-tap-btn').addEventListener('click', () => {
-      sendTapToPlayer(p.id);
-      openPlayerDetailModal(p.id);
-    });
-
     document.getElementById('modal-copy-nudge-btn').addEventListener('click', () => {
-      const url = buildCampaignShareUrl(camp);
-      const msg = `Hey ${p.name} 👀 You got tapped on Schedulr for "${camp.title}". Tap DTF / Maybe / Pass here: ${url}`;
-      copyText(msg, `📋 Nudge copied for ${p.name}!`);
+      copyNudgeForPlayer(p, camp);
     });
 
     els.detailModal.classList.remove('hidden');
@@ -1133,24 +1098,6 @@
     els.detailModal.classList.remove('hidden');
   }
 
-  function sendTapToPlayer(playerId, btnEl) {
-    const camp = getActiveCampaign();
-    const p = camp.players.find((x) => x.id === playerId);
-    if (!p) return;
-    p.taps = (p.taps || 0) + 1;
-    saveState();
-    playTapFlameSound();
-
-    if (btnEl) {
-      btnEl.textContent = `🔥 Tap (${p.taps})`;
-      btnEl.classList.remove('tapped-flash');
-      void btnEl.offsetWidth;
-      btnEl.classList.add('tapped-flash');
-    }
-
-    showToast(`🔥 Tapped ${p.name}!`, 'success');
-  }
-
   function triggerRoastModal() {
     const roast = ANTI_ESSAY_ROASTS[Math.floor(Math.random() * ANTI_ESSAY_ROASTS.length)];
     els.roastModalMessage.textContent = roast;
@@ -1163,16 +1110,6 @@
     els.antiEssayInput.value = '';
     els.antiEssayInput.blur();
     playBuzzerSound();
-  }
-
-  function openInviteModal() {
-    const camp = getActiveCampaign();
-    const url = buildCampaignShareUrl(camp);
-    const savageMsg = `No more 20-text scheduling chaos ⚔️\nOpen this link, tap 🔥 DTF / 🎲 Maybe / 💀 Pass for "${camp.title}", and send back your Reply Link:\n${url}`;
-
-    els.inviteModalUrl.value = url;
-    els.inviteModalText.value = savageMsg;
-    els.inviteModal.classList.remove('hidden');
   }
 
   // --------------------------------------------------------------------------
@@ -1207,7 +1144,6 @@
       classVibe: deriveClassVibe(displayName, state.currentPlayer.hosting),
       hosting: state.currentPlayer.hosting,
       online: true,
-      taps: 1,
       votes: { ...state.currentPlayer.votes }
     });
 
@@ -1235,17 +1171,6 @@
     triggerConfetti();
     playCritFanfare();
     showToast('🎉 Answers locked! Send your Reply Link to the DM.', 'success');
-  }
-
-  function buildPlainSummaryMessage() {
-    const camp = getActiveCampaign();
-    const votes = state.currentPlayer.votes || {};
-    const name = cleanString(state.currentPlayer.name, 28, 'Party Member');
-    const replyUrl = buildPlayerResponseUrl();
-    const dtfList = camp.dates.filter((d) => votes[d.id] === 'dtf').map((d) => `${d.label} (${d.time})`).join(', ') || 'None';
-    const maybeList = camp.dates.filter((d) => votes[d.id] === 'maybe').map((d) => `${d.label} (${d.time})`).join(', ') || 'None';
-
-    return `🎲 ${name} (${state.currentPlayer.hosting}) — "${camp.title}"\n🔥 DTF: ${dtfList}\n🎲 Maybe: ${maybeList}\n\nOpen this Reply Link to add me to The Grid:\n${replyUrl}`;
   }
 
   // --------------------------------------------------------------------------
@@ -1327,20 +1252,6 @@
     els.bottomTabs.forEach((t) => t.addEventListener('click', () => switchView(t.dataset.view)));
     document.getElementById('brand-home-btn').addEventListener('click', () => switchView('grid'));
 
-    els.howItWorksBtn.addEventListener('click', () => {
-      state.hideHowItWorks = !state.hideHowItWorks;
-      saveState();
-      renderHeader();
-    });
-
-    els.closeHowBtn.addEventListener('click', () => {
-      state.hideHowItWorks = true;
-      saveState();
-      renderHeader();
-    });
-
-    els.headerInviteBtn.addEventListener('click', openInviteModal);
-
     [els.playerNameInput, els.playerHostingSelect].forEach((input) => {
       input.addEventListener('input', syncCurrentPlayerMeta);
       input.addEventListener('change', syncCurrentPlayerMeta);
@@ -1362,23 +1273,8 @@
       }
     });
 
-    els.nextCardBtn.addEventListener('click', () => {
-      const camp = getActiveCampaign();
-      if (state.deckIndex < camp.dates.length - 1) {
-        state.deckIndex += 1;
-        saveState();
-        renderCheckIn();
-      } else {
-        completeCheckIn();
-      }
-    });
-
     els.copyResponseLinkBtn.addEventListener('click', () => {
-      copyText(buildPlayerResponseUrl(), '🔗 Reply Link copied! Send it to your DM.');
-    });
-
-    els.copyResponseCodeBtn.addEventListener('click', () => {
-      copyText(buildPlainSummaryMessage(), '💬 Summary + Reply Link copied!');
+      copyText(buildPlayerResponseUrl(), '📋 Reply Link copied! Send it to your DM.');
     });
 
     els.gotoGridBtn.addEventListener('click', () => switchView('grid'));
@@ -1410,7 +1306,6 @@
       if (e.key === 'Escape') {
         els.detailModal.classList.add('hidden');
         els.roastModal.classList.add('hidden');
-        els.inviteModal.classList.add('hidden');
         return;
       }
       if (state.activeView !== 'checkin' || state.checkinCompleted) return;
@@ -1421,7 +1316,6 @@
       else if (e.key === '2') castVoteForDate(dt.id, 'maybe', true);
       else if (e.key === '3') castVoteForDate(dt.id, 'pass', true);
       else if (e.key === 'ArrowLeft') els.prevCardBtn.click();
-      else if (e.key === 'ArrowRight') els.nextCardBtn.click();
     });
 
     els.dmCampaignTitle.addEventListener('input', () => {
@@ -1472,14 +1366,7 @@
     });
 
     els.copyCampaignLinkBtn.addEventListener('click', () => {
-      copyText(buildCampaignShareUrl(getActiveCampaign()), '🔗 Invite Link copied!');
-    });
-
-    els.copySavageInviteBtn.addEventListener('click', () => {
-      const camp = getActiveCampaign();
-      const url = buildCampaignShareUrl(camp);
-      const msg = `No more 20-text scheduling chaos ⚔️\nOpen this link, tap 🔥 DTF / 🎲 Maybe / 💀 Pass for "${camp.title}", and send back your Reply Link:\n${url}`;
-      copyText(msg, '💬 Group text copied!');
+      copyText(buildCampaignShareUrl(getActiveCampaign()), '🔗 Invite Link copied! Paste it in your group chat.');
     });
 
     els.importResponseBtn.addEventListener('click', () => {
@@ -1502,7 +1389,7 @@
       state.checkinCompleted = false;
       saveState();
       renderAll();
-      showToast('🧹 Sample party cleared! Set your dates & send your Invite Link.', 'success');
+      showToast('🧹 Sample party cleared! Set your dates & copy your Invite Link.', 'success');
     });
 
     els.resetDemoBtn.addEventListener('click', () => {
@@ -1517,17 +1404,6 @@
     els.detailModalClose.addEventListener('click', () => els.detailModal.classList.add('hidden'));
     els.detailModal.addEventListener('click', (e) => {
       if (e.target === els.detailModal) els.detailModal.classList.add('hidden');
-    });
-
-    els.inviteModalClose.addEventListener('click', () => els.inviteModal.classList.add('hidden'));
-    els.inviteModal.addEventListener('click', (e) => {
-      if (e.target === els.inviteModal) els.inviteModal.classList.add('hidden');
-    });
-    els.inviteCopyUrlBtn.addEventListener('click', () => {
-      copyText(els.inviteModalUrl.value, '🔗 Invite Link copied!');
-    });
-    els.inviteCopyMsgBtn.addEventListener('click', () => {
-      copyText(els.inviteModalText.value, '💬 Group text copied!');
     });
   }
 
