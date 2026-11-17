@@ -41,6 +41,16 @@ Built as a **100% static web app** (`index.html`, `styles.css`, `app.js`) with z
 
 ---
 
+## 🔒 Security & Privacy
+
+Because this repository is public and hosted statically on GitHub Pages:
+- **Zero Secrets & Zero Backend**: No API keys, tracking scripts, analytics, or databases.
+- **Strict CSP & No-Referrer**: [index.html](index.html) enforces a strict Content Security Policy (`script-src 'self'`, `object-src 'none'`) and `no-referrer` so shared URL tokens (`?c=...` / `?r=...`) never leak in referrer headers.
+- **Input Sanitization & Prototype Pollution Protection**: [app.js](app.js) validates payload bounds, strips dangerous JSON keys (`__proto__`, `constructor`, `prototype`), enforces strict enum allowlists, and HTML-escapes all rendered fields.
+- See [SECURITY.md](SECURITY.md) for full details.
+
+---
+
 ## 🛠️ Local Development
 
 Since Schedulr uses pure HTML, CSS, and vanilla JavaScript, you can open `index.html` directly in a browser or run any local static server (e.g. `npx serve .` or `python -m http.server`).

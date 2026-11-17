@@ -9,6 +9,113 @@
   const STORAGE_KEY = 'grindm_state_v1';
 
   // --------------------------------------------------------------------------
+  // Security & Input Sanitization Layer
+  // --------------------------------------------------------------------------
+  const MAX_TOKEN_LENGTH = 8192;
+  const MAX_DATES = 24;
+  const MAX_PLAYERS = 30;
+  const VALID_VOTES = new Set(['dtf', 'maybe', 'pass']);
+  const VALID_HOSTING = new Set(['🏠 Can Host', '🚗 Can Travel', '💻 Remote/VTT', '🍕 Brings Snacks']);
+  const VALID_VIEWS = new Set(['checkin', 'grid', 'dm']);
+  const VALID_FILTERS = new Set(['all', 'dtf', 'host', 'holiday', 'needs-tap']);
+
+  function safeJsonParse(jsonStr) {
+    if (typeof jsonStr !== 'string') return null;
+    return JSON.parse(jsonStr, (key, value) => {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        return undefined;
+      }
+      return value;
+    });
+  }
+
+  function cleanString(val, maxLen = 80, fallback = '') {
+    if (typeof val !== 'string' && typeof val !== 'number') return fallback;
+    const cleaned = String(val)
+      .replace(/[\u0000-\u001F\u007F]/g, ' ')
+      .trim()
+      .slice(0, maxLen);
+    return cleaned || fallback;
+  }
+
+  function cleanId(val, fallback = 'id') {
+    const str = typeof val === 'string' ? val.trim() : '';
+    return /^[a-zA-Z0-9_-]{1,36}$/.test(str) ? str : fallback;
+  }
+
+  function cleanVoteMap(rawVotes) {
+    const clean = {};
+    if (!rawVotes || typeof rawVotes !== 'object' || Array.isArray(rawVotes)) return clean;
+    const entries = Object.entries(rawVotes).slice(0, MAX_DATES * 2);
+    for (const [k, v] of entries) {
+      if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
+      const safeKey = cleanId(k, '');
+      if (safeKey && VALID_VOTES.has(v)) {
+        clean[safeKey] = v;
+      }
+    }
+    return clean;
+  }
+
+  function sanitizeDateEntry(raw, idx) {
+    const fallbackId = `d${idx + 1}`;
+    const rawDate = cleanString(raw && raw.date, 16, '');
+    const safeDate = /^\d{4}-\d{2}-\d{2}$/.test(rawDate) ? rawDate : '';
+    return {
+      id: cleanId(raw && raw.id, fallbackId),
+      date: safeDate,
+      label: cleanString(raw && raw.label, 24, `Date ${idx + 1}`),
+      weekday: cleanString(raw && raw.weekday, 16, 'SESSION'),
+      time: cleanString(raw && raw.time, 20, '7:00 PM'),
+      note: cleanString(raw && raw.note, 80, 'Session Check-In'),
+      holiday: Boolean(raw && raw.holiday),
+      distance: cleanString(raw && raw.distance, 24, `${((idx + 1) * 0.3).toFixed(1)} mi away`)
+    };
+  }
+
+  function sanitizePlayer(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const rawClass = cleanString(raw.classVibe, 40, 'Barbarian (Down to Roll)');
+    const safeClass = Object.prototype.hasOwnProperty.call(CLASS_META, rawClass)
+      ? rawClass
+      : 'Barbarian (Down to Roll)';
+    const rawHosting = cleanString(raw.hosting, 30, '🚗 Can Travel');
+    const safeHosting = VALID_HOSTING.has(rawHosting) ? rawHosting : '🚗 Can Travel';
+    const rawTaps = Number(raw.taps);
+
+    return {
+      id: cleanId(raw.id, 'p-' + Math.random().toString(36).slice(2, 8)),
+      name: cleanString(raw.name, 28, 'Mystery Adventurer'),
+      classVibe: safeClass,
+      hosting: safeHosting,
+      bio: cleanString(raw.bio, 120, 'Checked in via Schedulr.'),
+      distance: cleanString(raw.distance, 24, '0.5 mi away'),
+      online: raw.online !== false,
+      initiative: cleanString(raw.initiative, 8, '+3'),
+      flakeRate: cleanString(raw.flakeRate, 16, '0%'),
+      taps: Number.isFinite(rawTaps) ? Math.max(0, Math.min(9999, Math.floor(rawTaps))) : 0,
+      votes: cleanVoteMap(raw.votes)
+    };
+  }
+
+  function sanitizeCampaign(raw, fallbackCamp) {
+    if (!raw || typeof raw !== 'object') return fallbackCamp;
+    const quorumNum = Number(raw.quorum);
+    const rawDates = Array.isArray(raw.dates) ? raw.dates.slice(0, MAX_DATES) : fallbackCamp.dates;
+    const rawPlayers = Array.isArray(raw.players) ? raw.players.slice(0, MAX_PLAYERS) : fallbackCamp.players;
+
+    return {
+      id: cleanId(raw.id, fallbackCamp.id),
+      title: cleanString(raw.title, 48, fallbackCamp.title),
+      dmName: cleanString(raw.dmName, 28, fallbackCamp.dmName),
+      quorum: Number.isFinite(quorumNum) ? Math.max(2, Math.min(12, Math.floor(quorumNum))) : fallbackCamp.quorum,
+      duration: cleanString(raw.duration, 48, fallbackCamp.duration),
+      dates: rawDates.map((dt, idx) => sanitizeDateEntry(dt, idx)),
+      players: rawPlayers.map((p) => sanitizePlayer(p)).filter(Boolean)
+    };
+  }
+
+  // --------------------------------------------------------------------------
   // 1. Comedy Copy, Anti-Essay Roasts & Class Metadata
   // --------------------------------------------------------------------------
   const ANTI_ESSAY_ROASTS = [
@@ -163,17 +270,35 @@
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return structuredCloneCompat(defaultState);
-      const parsed = JSON.parse(raw);
+      if (!raw || raw.length > 262144) return structuredCloneCompat(defaultState);
+      const parsed = safeJsonParse(raw);
+      if (!parsed || typeof parsed !== 'object') return structuredCloneCompat(defaultState);
+
+      const baseDemo = createDemoCampaign();
+      const baseCustom = createBlankCustomCampaign();
+      const cp = parsed.currentPlayer && typeof parsed.currentPlayer === 'object' ? parsed.currentPlayer : {};
+      const cpClass = cleanString(cp.classVibe, 40, 'Paladin (Host)');
+      const cpHosting = cleanString(cp.hosting, 30, '🏠 Can Host');
+
       return {
-        ...structuredCloneCompat(defaultState),
-        ...parsed,
-        demoCampaign: parsed.demoCampaign || createDemoCampaign(),
-        customCampaign: parsed.customCampaign || createBlankCustomCampaign(),
+        mode: parsed.mode === 'custom' ? 'custom' : 'demo',
+        activeView: VALID_VIEWS.has(parsed.activeView) ? parsed.activeView : 'checkin',
+        activeFilter: VALID_FILTERS.has(parsed.activeFilter) ? parsed.activeFilter : 'all',
+        soundEnabled: parsed.soundEnabled !== false,
+        excusesBlocked: Math.max(0, Math.min(99999, Math.floor(Number(parsed.excusesBlocked) || 0))),
+        demoCampaign: sanitizeCampaign(parsed.demoCampaign, baseDemo),
+        customCampaign: sanitizeCampaign(parsed.customCampaign, baseCustom),
         currentPlayer: {
-          ...structuredCloneCompat(defaultState.currentPlayer),
-          ...(parsed.currentPlayer || {})
-        }
+          id: cleanId(cp.id, defaultState.currentPlayer.id),
+          name: cleanString(cp.name, 28, ''),
+          classVibe: Object.prototype.hasOwnProperty.call(CLASS_META, cpClass) ? cpClass : 'Paladin (Host)',
+          hosting: VALID_HOSTING.has(cpHosting) ? cpHosting : '🏠 Can Host',
+          bio: cleanString(cp.bio, 80, ''),
+          votes: cleanVoteMap(cp.votes)
+        },
+        deckIndex: Math.max(0, Math.floor(Number(parsed.deckIndex) || 0)),
+        listMode: Boolean(parsed.listMode),
+        checkinCompleted: Boolean(parsed.checkinCompleted)
       };
     } catch {
       return structuredCloneCompat(defaultState);
@@ -210,6 +335,12 @@
   }
 
   function decodePayload(b64url) {
+    if (typeof b64url !== 'string' || b64url.length === 0 || b64url.length > MAX_TOKEN_LENGTH) {
+      throw new Error('Payload length invalid');
+    }
+    if (!/^[A-Za-z0-9\-_=]+$/.test(b64url)) {
+      throw new Error('Invalid token characters');
+    }
     const padded = b64url.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((b64url.length + 3) % 4);
     const binary = atob(padded);
     const bytes = new Uint8Array(binary.length);
@@ -217,7 +348,11 @@
       bytes[i] = binary.charCodeAt(i);
     }
     const json = new TextDecoder().decode(bytes);
-    return JSON.parse(json);
+    const parsed = safeJsonParse(json);
+    if (!parsed || typeof parsed !== 'object') {
+      throw new Error('Invalid payload object');
+    }
+    return parsed;
   }
 
   function buildCampaignShareUrl(campaign) {
@@ -266,27 +401,32 @@
 
     if (cToken) {
       try {
+        if (cToken.length > MAX_TOKEN_LENGTH) throw new Error('Campaign token too large');
         const decoded = decodePayload(cToken);
         if (decoded && Array.isArray(decoded.d)) {
-          state.mode = 'custom';
-          state.customCampaign = {
-            id: decoded.id || 'shared-' + Date.now(),
+          const fallbackCamp = createBlankCustomCampaign();
+          const rawCampaign = {
+            id: decoded.id,
             title: decoded.t || 'Shared D&D Campaign',
             dmName: decoded.dm || 'Dungeon Master',
-            quorum: Number(decoded.q) || 4,
+            quorum: decoded.q,
             duration: decoded.dur || '4 Hours',
-            dates: decoded.d.map((arr, idx) => ({
-              id: arr[0] || `d${idx + 1}`,
-              date: arr[1] || '',
-              label: arr[2] || `Date ${idx + 1}`,
-              weekday: arr[3] || 'SESSION',
-              time: arr[4] || '7:00 PM',
-              note: arr[5] || 'Session Check-In',
-              holiday: Boolean(arr[6]),
-              distance: `${((idx + 1) * 0.3).toFixed(1)} mi away`
-            })),
-            players: state.customCampaign.id === decoded.id ? state.customCampaign.players : []
+            dates: decoded.d.slice(0, MAX_DATES).map((arr, idx) => {
+              const safeArr = Array.isArray(arr) ? arr : [];
+              return {
+                id: safeArr[0],
+                date: safeArr[1],
+                label: safeArr[2],
+                weekday: safeArr[3],
+                time: safeArr[4],
+                note: safeArr[5],
+                holiday: Boolean(safeArr[6])
+              };
+            }),
+            players: state.customCampaign.id === cleanId(decoded.id, '') ? state.customCampaign.players : []
           };
+          state.mode = 'custom';
+          state.customCampaign = sanitizeCampaign(rawCampaign, fallbackCamp);
           state.deckIndex = 0;
           state.checkinCompleted = false;
           state.activeView = 'checkin';
@@ -313,50 +453,62 @@
   }
 
   function importResponseToken(rawInput, fromUrl = false) {
-    let token = (rawInput || '').trim();
-    if (!token) return false;
+    let token = typeof rawInput === 'string' ? rawInput.trim() : '';
+    if (!token || token.length > MAX_TOKEN_LENGTH + 512) return false;
 
     try {
-      if (token.includes('?r=')) {
-        const urlObj = new URL(token);
-        token = urlObj.searchParams.get('r') || '';
+      if (token.includes('?r=') || token.includes('&r=')) {
+        if (/^https?:\/\//i.test(token)) {
+          const urlObj = new URL(token);
+          token = urlObj.searchParams.get('r') || '';
+        } else {
+          const match = token.match(/[?&]r=([A-Za-z0-9\-_=]+)/);
+          token = match ? match[1] : '';
+        }
       } else if (token.startsWith('r=')) {
         token = token.slice(2);
       } else if (token.toUpperCase().includes('SCHEDULR:') || token.toUpperCase().includes('GRINDM:')) {
-        const match = token.match(/(?:SCHEDULR|GRINDM):([A-Za-z0-9\-_]+)/i);
+        const match = token.match(/(?:SCHEDULR|GRINDM):([A-Za-z0-9\-_=]+)/i);
         if (match) token = match[1];
       }
 
       const data = decodePayload(token);
-      if (!data || !data.p || !data.p.n) {
+      if (!data || !data.p || typeof data.p !== 'object' || !data.p.n) {
         throw new Error('Invalid response');
       }
 
+      const incomingCampaignId = cleanId(data.cid, '');
+      const incomingCampaignTitle = cleanString(data.ct, 48, '');
+
       // Match campaign if demo vs custom
-      if (data.cid === state.demoCampaign.id) {
+      if (incomingCampaignId && incomingCampaignId === state.demoCampaign.id) {
         state.mode = 'demo';
       } else {
         state.mode = 'custom';
-        if (data.ct && state.customCampaign.id !== data.cid) {
-          state.customCampaign.id = data.cid || state.customCampaign.id;
-          state.customCampaign.title = data.ct;
+        if (incomingCampaignTitle && incomingCampaignId && state.customCampaign.id !== incomingCampaignId) {
+          state.customCampaign.id = incomingCampaignId;
+          state.customCampaign.title = incomingCampaignTitle;
         }
       }
 
       const camp = getActiveCampaign();
-      const incomingPlayer = {
-        id: data.p.id || 'p-' + Date.now(),
+      const incomingPlayer = sanitizePlayer({
+        id: data.p.id,
         name: data.p.n,
-        classVibe: data.p.c || 'Barbarian (Down to Roll)',
-        hosting: data.p.h || '🚗 Can Travel',
-        bio: data.p.b || 'Checked in via Schedulr.',
+        classVibe: data.p.c,
+        hosting: data.p.h,
+        bio: data.p.b,
         distance: '0.5 mi away',
         online: true,
         initiative: '+4',
         flakeRate: '0%',
         taps: 1,
-        votes: data.p.v || {}
-      };
+        votes: cleanVoteMap(data.p.v)
+      });
+
+      if (!incomingPlayer) {
+        throw new Error('Invalid player data');
+      }
 
       upsertPlayerInCampaign(camp, incomingPlayer);
       saveState();
@@ -373,17 +525,22 @@
   }
 
   function upsertPlayerInCampaign(campaign, playerObj) {
+    const safePlayer = sanitizePlayer(playerObj);
+    if (!safePlayer) return;
     const idx = campaign.players.findIndex(
-      (p) => p.id === playerObj.id || p.name.toLowerCase() === playerObj.name.toLowerCase()
+      (p) => p.id === safePlayer.id || p.name.toLowerCase() === safePlayer.name.toLowerCase()
     );
     if (idx >= 0) {
       campaign.players[idx] = {
         ...campaign.players[idx],
-        ...playerObj,
-        taps: campaign.players[idx].taps || playerObj.taps || 0
+        ...safePlayer,
+        taps: campaign.players[idx].taps || safePlayer.taps || 0
       };
     } else {
-      campaign.players.unshift(playerObj);
+      campaign.players.unshift(safePlayer);
+      if (campaign.players.length > MAX_PLAYERS) {
+        campaign.players.length = MAX_PLAYERS;
+      }
     }
   }
 
@@ -833,7 +990,8 @@
     const votes = state.currentPlayer.votes || {};
     els.playerSummaryChips.innerHTML = camp.dates
       .map((dt) => {
-        const v = votes[dt.id] || 'pass';
+        const rawVote = votes[dt.id];
+        const v = VALID_VOTES.has(rawVote) ? rawVote : 'pass';
         const icon = v === 'dtf' ? '🔥' : v === 'maybe' ? '🎲' : '💀';
         const label = v === 'dtf' ? 'DTF' : v === 'maybe' ? 'Maybe' : 'Pass';
         return `<span class="summary-chip ${v}">${icon} ${escapeHtml(dt.label)} (${label})</span>`;
@@ -1295,9 +1453,12 @@
   }
 
   function castVoteForDate(dateId, vote, advanceDeck = true) {
+    if (!VALID_VOTES.has(vote)) return;
+    const safeDateId = cleanId(dateId, '');
+    if (!safeDateId) return;
     syncCurrentPlayerMeta();
     if (!state.currentPlayer.votes) state.currentPlayer.votes = {};
-    state.currentPlayer.votes[dateId] = vote;
+    state.currentPlayer.votes[safeDateId] = vote;
 
     if (vote === 'dtf') playTapFlameSound();
     else playTone(380, 0.06, 'sine', 0.06);
@@ -1570,10 +1731,10 @@
     // DM Control Actions
     els.saveCampaignBtn.addEventListener('click', () => {
       const camp = getActiveCampaign();
-      camp.title = els.dmCampaignTitle.value.trim() || 'Untitled D&D Campaign';
-      camp.dmName = els.dmNameInput.value.trim() || 'Dungeon Master';
-      camp.quorum = Math.max(2, Math.min(12, Number(els.dmQuorumInput.value) || 4));
-      camp.duration = els.dmDurationSelect.value;
+      camp.title = cleanString(els.dmCampaignTitle.value, 48, 'Untitled D&D Campaign');
+      camp.dmName = cleanString(els.dmNameInput.value, 28, 'Dungeon Master');
+      camp.quorum = Math.max(2, Math.min(12, Math.floor(Number(els.dmQuorumInput.value) || 4)));
+      camp.duration = cleanString(els.dmDurationSelect.value, 48, '4 Hours (Standard Tavern Crawl)');
       saveState();
       renderAll();
       showToast('👑 Campaign settings saved!', 'success');
@@ -1608,16 +1769,20 @@
     });
 
     els.addCustomDateBtn.addEventListener('click', () => {
+      const camp = getActiveCampaign();
+      if (camp.dates.length >= MAX_DATES) {
+        showToast(`Maximum of ${MAX_DATES} dates reached per campaign.`, 'danger');
+        return;
+      }
       const rawDate = els.customDateInput.value;
-      const rawTime = els.customTimeInput.value.trim() || '7:00 PM';
-      if (!rawDate) {
-        showToast('Pick a calendar date first!', 'danger');
+      const rawTime = cleanString(els.customTimeInput.value, 20, '7:00 PM');
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
+        showToast('Pick a valid calendar date first!', 'danger');
         return;
       }
       const parsed = new Date(rawDate + 'T12:00:00');
       const label = parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       const weekday = parsed.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
-      const camp = getActiveCampaign();
       camp.dates.push({
         id: 'd-' + Date.now().toString(36),
         date: rawDate,
