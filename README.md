@@ -21,7 +21,7 @@ Built as a **100% static web app** (`index.html`, `styles.css`, `app.js`) with z
   - **Best Match Banner**: Highlights the top date with quorum + 1-click **"Lock In & Copy Group Verdict"** (with confetti).
   - **Date Match Cascade**: 3-column grid of proposed dates with match percentages, holiday tags, and full breakdowns.
   - **Party Profiles Nearby**: 3-column Grindr-style character grid with custom SVG class avatars, distance tags (*"20 ft away"*, *"In the Tavern"*), hosting status (`🏠 Can Host`), and a **🔥 Tap** nudge button.
-- **🎭 Pre-Loaded Demo Mode ("Serge's Holiday D&D Gauntlet")**
+- **🎭 Pre-Loaded Sample Party ("Holiday D&D Gauntlet")**
   - Works immediately on load with 6 holiday session dates and 5 pre-loaded comedy party profiles.
 - **👑 DM Control & Zero-Backend Sharing**
   - **1-Click Holiday Presets**: *Thanksgiving Gauntlet*, *Mid-December Chaos*, *New Year's Eve Marathon*, or *Next 4 Weekends*.

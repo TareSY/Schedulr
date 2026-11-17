@@ -21,7 +21,7 @@
 
 4. **Zero-Server / Zero-Secret Design**
    - No API keys, tokens, cookies, analytics, or remote database connections exist anywhere in the codebase.
-   - All scheduling state stays locally in your browser's `localStorage` (`grindm_state_v1`) or explicitly inside links/codes you choose to share.
+   - All scheduling state stays locally in your browser's `localStorage` (`schedulr_state_v3`) or explicitly inside links/codes you choose to share.
 
 ## Reporting a Vulnerability
 

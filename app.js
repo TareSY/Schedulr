@@ -6,7 +6,7 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'schedulr_state_v2';
+  const STORAGE_KEY = 'schedulr_state_v3';
 
   // --------------------------------------------------------------------------
   // Security & Input Sanitization Layer
@@ -142,8 +142,8 @@
   // --------------------------------------------------------------------------
   function createSampleCampaign() {
     return {
-      id: 'serge-holiday-2026',
-      title: "Serge's Holiday D&D Gauntlet",
+      id: 'holiday-gauntlet-2026',
+      title: 'Holiday D&D Gauntlet',
       quorum: 4,
       dates: [
         { id: 'd1', date: '2026-11-28', label: 'Nov 28', weekday: 'SATURDAY', time: '7:00 PM', holiday: true },
@@ -155,8 +155,8 @@
       ],
       players: [
         {
-          id: 'p-serge',
-          name: 'Dungeon Daddy Serge',
+          id: 'p-dm',
+          name: 'The Forever DM',
           classVibe: 'Paladin (Host)',
           hosting: '🏠 Can Host',
           online: true,
@@ -225,6 +225,8 @@
 
   function loadState() {
     try {
+      localStorage.removeItem('grindm_state_v1');
+      localStorage.removeItem('schedulr_state_v2');
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw || raw.length > 262144) return structuredCloneCompat(defaultState);
       const parsed = safeJsonParse(raw);
@@ -1492,7 +1494,7 @@
       const camp = getActiveCampaign();
       camp.players = [];
       camp.id = 'camp-' + Math.random().toString(36).slice(2, 8);
-      if (camp.title === "Serge's Holiday D&D Gauntlet") {
+      if (camp.title === 'Holiday D&D Gauntlet') {
         camp.title = 'My D&D Campaign';
       }
       state.currentPlayer.votes = {};
