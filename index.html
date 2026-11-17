@@ -6,7 +6,7 @@
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
   <title>Schedulr — Straight Answers for D&amp;D Scheduling</title>
-  <meta name="description" content="A Grindr-inspired, zero-fluff D&D session scheduler. Stop reading 20 texts over 6 hours. Tap DTF, Disadvantage, or Hard Pass." />
+  <meta name="description" content="A Grindr-inspired, zero-fluff D&D session scheduler. Tap DTF, Maybe, or Pass." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -18,379 +18,260 @@
   <div id="toast-container" aria-live="polite"></div>
 
   <div class="app-shell">
-    <!-- Top Sticky Header -->
+    <!-- Compact Sticky Header -->
     <header class="top-header">
-      <div class="header-left">
-        <div class="brand-lockup" id="brand-home-btn" role="button" tabindex="0" title="Schedulr Home">
-          <!-- Custom SVG Schedulr Logo: Stylized D20 inside iconic mask/shield silhouette -->
-          <svg class="brand-logo" viewBox="0 0 64 64" width="38" height="38" aria-hidden="true">
-            <defs>
-              <linearGradient id="amberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#FFD000" />
-                <stop offset="100%" stop-color="#FF6B00" />
-              </linearGradient>
-            </defs>
-            <path d="M9 17C9 11.477 13.477 7 19 7h26c5.523 0 10 4.477 10 10v16.5C55 46.8 44.7 57 32 57S9 46.8 9 33.5V17z" fill="url(#amberGrad)" />
-            <path d="M16 18c4-3 10-3 16 1 6-4 12-4 16-1l-4 17-12 13-12-13-4-17z" fill="#0B0B0E" />
-            <polygon points="32,17 44,25 40,39 24,39 20,25" fill="none" stroke="#FFB800" stroke-width="2" />
-            <polyline points="20,25 32,29 44,25" fill="none" stroke="#FFB800" stroke-width="1.6" />
-            <line x1="32" y1="17" x2="32" y2="29" stroke="#FFB800" stroke-width="1.6" />
-            <line x1="32" y1="29" x2="24" y2="39" stroke="#FFB800" stroke-width="1.6" />
-            <line x1="32" y1="29" x2="40" y2="39" stroke="#FFB800" stroke-width="1.6" />
-            <text x="32" y="34.5" text-anchor="middle" fill="#FFB800" font-family="Barlow Condensed, sans-serif" font-weight="800" font-size="10">20</text>
-          </svg>
-          <div class="brand-text">
-            <span class="brand-name">SCHEDUL<span class="accent">R</span></span>
-            <span class="brand-tagline">GrinDM Edition • Straight Answers Only</span>
-          </div>
+      <div class="brand-lockup" id="brand-home-btn" role="button" tabindex="0" title="Schedulr Home">
+        <svg class="brand-logo" viewBox="0 0 64 64" width="34" height="34" aria-hidden="true">
+          <defs>
+            <linearGradient id="amberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFD000" />
+              <stop offset="100%" stop-color="#FF6B00" />
+            </linearGradient>
+          </defs>
+          <path d="M9 17C9 11.477 13.477 7 19 7h26c5.523 0 10 4.477 10 10v16.5C55 46.8 44.7 57 32 57S9 46.8 9 33.5V17z" fill="url(#amberGrad)" />
+          <path d="M16 18c4-3 10-3 16 1 6-4 12-4 16-1l-4 17-12 13-12-13-4-17z" fill="#0B0B0E" />
+          <polygon points="32,17 44,25 40,39 24,39 20,25" fill="none" stroke="#FFB800" stroke-width="2" />
+          <polyline points="20,25 32,29 44,25" fill="none" stroke="#FFB800" stroke-width="1.6" />
+          <line x1="32" y1="17" x2="32" y2="29" stroke="#FFB800" stroke-width="1.6" />
+          <line x1="32" y1="29" x2="24" y2="39" stroke="#FFB800" stroke-width="1.6" />
+          <line x1="32" y1="29" x2="40" y2="39" stroke="#FFB800" stroke-width="1.6" />
+          <text x="32" y="34.5" text-anchor="middle" fill="#FFB800" font-family="Barlow Condensed, sans-serif" font-weight="800" font-size="10">20</text>
+        </svg>
+        <div class="brand-text">
+          <span class="brand-name">SCHEDUL<span class="accent">R</span></span>
+          <span class="brand-tagline">Straight Answers Only</span>
         </div>
       </div>
 
       <div class="header-right">
-        <button type="button" class="pill-toggle" id="mode-toggle-btn" title="Switch between Serge's Demo Party and your own campaign">
-          <span id="mode-toggle-label">🎭 Demo Party</span>
+        <button type="button" class="pill-toggle" id="how-it-works-btn" title="Show or hide How It Works">
+          <span>❓ How It Works</span>
         </button>
-        <button type="button" class="btn-icon" id="sound-toggle-btn" title="Toggle Sound FX" aria-label="Toggle Sound FX">
-          <span id="sound-icon">🔊</span>
-        </button>
-        <button type="button" class="btn-amber-sm" id="header-invite-btn">
-          <span>🔗 Invite Party</span>
-        </button>
+        <button type="button" class="btn-amber-sm" id="header-invite-btn">🔗 Invite Party</button>
       </div>
     </header>
 
-    <!-- Campaign Banner & Filter Strip -->
-    <section class="status-strip">
-      <div class="campaign-meta-row">
-        <div class="online-status">
-          <span class="pulse-dot" aria-hidden="true"></span>
-          <span class="status-text">Looking for Group • No Essays Allowed</span>
+    <!-- Plain-English 3-Step Guide -->
+    <section id="how-it-works-card" class="how-card" aria-label="How Schedulr Works">
+      <div class="how-header-row">
+        <div>
+          <h1 class="how-title">How Schedulr Works</h1>
+          <p class="how-sub">No accounts. No servers. Everything travels inside your links so nobody has to read 20 texts to book one session.</p>
         </div>
-        <div class="active-campaign-badge" id="active-campaign-badge">
-          Loading Campaign...
-        </div>
+        <button type="button" class="btn-ghost-xs" id="close-how-btn">Got it ✕</button>
       </div>
-
-      <div class="filter-pills" id="filter-pills" role="tablist" aria-label="Grid Filters">
-        <button type="button" class="filter-pill active" data-filter="all">All</button>
-        <button type="button" class="filter-pill" data-filter="dtf">🔥 100% DTF</button>
-        <button type="button" class="filter-pill" data-filter="host">🏠 Can Host</button>
-        <button type="button" class="filter-pill" data-filter="holiday">🎄 Holiday Dates</button>
-        <button type="button" class="filter-pill" data-filter="needs-tap">💀 Needs a Tap</button>
+      <div class="how-steps-grid">
+        <div class="how-step">
+          <div class="how-step-num">1</div>
+          <div>
+            <strong>DM sets the dates</strong>
+            <p>Go to <b>👑 DM Setup</b>, pick your dates, and copy the <b>Invite Link</b> to your group chat.</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">2</div>
+          <div>
+            <strong>Players tap 3 buttons</strong>
+            <p>Players open the link, enter their name, and tap <b>🔥 DTF</b>, <b>🎲 Maybe</b>, or <b>💀 Pass</b> for each date (no 5-paragraph texts allowed).</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">3</div>
+          <div>
+            <strong>Pick the winning night</strong>
+            <p>Players send back their <b>Reply Link</b>. Opening (or pasting) it adds them to <b>🟨 The Grid</b> and highlights the best night to play.</p>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Desktop / Top Navigation Tabs -->
+    <!-- Desktop Navigation Tabs -->
     <nav class="primary-nav" aria-label="Main Navigation">
-      <button type="button" class="nav-tab active" data-view="checkin">
-        <span class="nav-icon">⚡</span>
-        <span class="nav-label">Check-In</span>
-        <span class="nav-sub">No Essays</span>
-      </button>
-      <button type="button" class="nav-tab" data-view="grid">
-        <span class="nav-icon">🟨</span>
-        <span class="nav-label">The Grid</span>
-        <span class="nav-sub" id="grid-count-badge">Cascade</span>
-      </button>
-      <button type="button" class="nav-tab" data-view="dm">
-        <span class="nav-icon">👑</span>
-        <span class="nav-label">DM Control</span>
-        <span class="nav-sub">Setup &amp; Merge</span>
-      </button>
+      <button type="button" class="nav-tab active" data-view="checkin">⚡ Check-In</button>
+      <button type="button" class="nav-tab" data-view="grid">🟨 The Grid <span class="tab-badge" id="grid-count-badge">5</span></button>
+      <button type="button" class="nav-tab" data-view="dm">👑 DM Setup</button>
     </nav>
 
-    <!-- MAIN CONTENT VIEWS -->
+    <!-- MAIN CONTENT -->
     <main class="main-content">
 
-      <!-- VIEW 1: CHECK-IN VIEW -->
-      <section id="view-checkin" class="view-panel active" aria-labelledby="checkin-heading">
-        <div class="card identity-card">
-          <div class="card-header-row">
-            <div>
-              <h1 id="checkin-heading" class="section-title">⚡ Player Check-In</h1>
-              <p class="section-subtitle">Pick your character vibe, tap 3 buttons per date, send link to DM. Zero texting chaos.</p>
-            </div>
-            <button type="button" class="btn-ghost-sm" id="toggle-list-mode-btn">📋 See All Dates</button>
+      <!-- =========================================================
+           VIEW 1: STREAMLINED CHECK-IN
+           ========================================================= -->
+      <section id="view-checkin" class="view-panel active" aria-label="Player Check-In">
+        <div class="card checkin-shell">
+          <div class="checkin-top-bar">
+            <div class="checkin-campaign-label" id="checkin-campaign-title">Serge's Holiday D&amp;D Gauntlet</div>
           </div>
 
-          <div class="identity-grid">
+          <!-- Compact 2-Field Identity Row -->
+          <div class="identity-row">
             <div class="field-group">
-              <label for="player-name-input">Adventurer / Screen Name</label>
-              <input type="text" id="player-name-input" maxlength="28" placeholder="e.g. Grog (Always Down)" />
+              <label for="player-name-input">Your Name</label>
+              <input type="text" id="player-name-input" maxlength="28" placeholder="e.g. Grog" />
             </div>
-
             <div class="field-group">
-              <label for="player-class-select">Class &amp; Scheduling Vibe</label>
-              <select id="player-class-select">
-                <option value="Paladin (Host)">🛡️ Paladin (Host)</option>
-                <option value="Rogue (Always Late)">🗡️ Rogue (Always Late)</option>
-                <option value="Bard (Brings Drinks)">🪕 Bard (Brings Drinks)</option>
-                <option value="Warlock (Ask My Patron)">👁️ Warlock (Ask My Patron)</option>
-                <option value="Wizard (VTT Only)">🧙 Wizard (VTT Only)</option>
-                <option value="Barbarian (Down to Roll)">🪓 Barbarian (Down to Roll)</option>
-              </select>
-            </div>
-
-            <div class="field-group">
-              <label for="player-hosting-select">Hosting / Logistics Tag</label>
+              <label for="player-hosting-select">Status / Vibe</label>
               <select id="player-hosting-select">
-                <option value="🏠 Can Host">🏠 Can Host (Table + Minis)</option>
-                <option value="🚗 Can Travel">🚗 Can Travel (Will Bring Dice)</option>
-                <option value="💻 Remote/VTT">💻 Remote / VTT Only</option>
-                <option value="🍕 Brings Snacks">🍕 Brings Snacks &amp; Chaos</option>
+                <option value="🏠 Can Host">🏠 Can Host</option>
+                <option value="🚗 Can Travel">🚗 Can Travel</option>
+                <option value="💻 Remote/VTT">💻 Remote / VTT</option>
+                <option value="🍕 Brings Snacks">🍕 Brings Snacks</option>
               </select>
             </div>
-
-            <div class="field-group">
-              <label for="player-bio-input">1-Line Profile Bio (Optional)</label>
-              <input type="text" id="player-bio-input" maxlength="80" placeholder="Looking for 4hr sessions. No murderhobos." />
-            </div>
-          </div>
-        </div>
-
-        <!-- Card-by-Card Date Stack -->
-        <div id="checkin-deck-area">
-          <div class="deck-progress-bar">
-            <div class="deck-progress-text">
-              <span id="deck-progress-label">Date 1 of 6</span>
-              <span class="shortcut-hint">Keys: 1 = DTF • 2 = Disadvantage • 3 = Hard Pass</span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" id="deck-progress-fill" style="width: 0%;"></div>
-            </div>
           </div>
 
-          <div class="swipe-card" id="active-date-card">
-            <div class="swipe-card-top">
-              <span class="holiday-chip" id="card-holiday-chip">🎄 Holiday Gauntlet</span>
-              <span class="distance-chip" id="card-distance-chip">0.3 mi away</span>
-            </div>
-            <div class="swipe-card-body">
-              <div class="card-weekday" id="card-weekday">SATURDAY</div>
-              <div class="card-date-main" id="card-date-main">Dec 20 • 7:00 PM</div>
-              <div class="card-session-note" id="card-session-note">4-hour Holiday One-Shot / Campaign Push</div>
-              <div class="card-party-pulse" id="card-party-pulse"></div>
-            </div>
-
-            <!-- ONLY 3 UNMISTAKABLE BUTTONS -->
-            <div class="verdict-buttons">
-              <button type="button" class="btn-verdict btn-dtf" data-vote="dtf">
-                <span class="v-emoji">🔥</span>
-                <span class="v-main">DTF (Down To Fantasy)</span>
-                <span class="v-sub">Yes, 100% available</span>
-              </button>
-              <button type="button" class="btn-verdict btn-maybe" data-vote="maybe">
-                <span class="v-emoji">🎲</span>
-                <span class="v-main">Roll w/ Disadvantage</span>
-                <span class="v-sub">Maybe / If desperate</span>
-              </button>
-              <button type="button" class="btn-verdict btn-pass" data-vote="pass">
-                <span class="v-emoji">💀</span>
-                <span class="v-main">Hard Pass (TPK)</span>
-                <span class="v-sub">Unavailable — skip me</span>
-              </button>
+          <!-- Card-by-Card Date Stack -->
+          <div id="checkin-deck-area">
+            <div class="deck-progress-bar">
+              <div class="deck-progress-text">
+                <span id="deck-progress-label">Date 1 of 6</span>
+                <span class="shortcut-hint">Keys: 1 • 2 • 3</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" id="deck-progress-fill" style="width: 0%;"></div>
+              </div>
             </div>
 
-            <div class="swipe-card-footer">
-              <button type="button" class="btn-ghost-xs" id="prev-card-btn">⬅️ Previous Date</button>
-              <span class="current-vote-indicator" id="current-vote-indicator">Not answered yet</span>
-              <button type="button" class="btn-ghost-xs" id="next-card-btn">Skip / Next ➡️</button>
+            <div class="swipe-card" id="active-date-card">
+              <div class="swipe-card-body">
+                <div class="card-weekday" id="card-weekday">SATURDAY</div>
+                <div class="card-date-main" id="card-date-main">Dec 20 • 7:00 PM</div>
+                <div class="card-party-pulse" id="card-party-pulse"></div>
+              </div>
+
+              <div class="verdict-buttons">
+                <button type="button" class="btn-verdict btn-dtf" data-vote="dtf">
+                  <span class="v-emoji">🔥</span>
+                  <span class="v-main">DTF</span>
+                  <span class="v-sub">Available</span>
+                </button>
+                <button type="button" class="btn-verdict btn-maybe" data-vote="maybe">
+                  <span class="v-emoji">🎲</span>
+                  <span class="v-main">Maybe</span>
+                  <span class="v-sub">If needed</span>
+                </button>
+                <button type="button" class="btn-verdict btn-pass" data-vote="pass">
+                  <span class="v-emoji">💀</span>
+                  <span class="v-main">Pass</span>
+                  <span class="v-sub">Unavailable</span>
+                </button>
+              </div>
+
+              <div class="swipe-card-footer">
+                <button type="button" class="btn-ghost-xs" id="prev-card-btn">⬅️ Prev</button>
+                <span class="current-vote-indicator" id="current-vote-indicator">Tap an answer</span>
+                <button type="button" class="btn-ghost-xs" id="next-card-btn">Skip ➡️</button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Power-user All Dates List -->
-        <div id="checkin-list-area" class="hidden">
-          <div class="card">
-            <div class="card-header-row">
-              <h2 class="section-title-sm">📋 Rapid-Fire All Dates List</h2>
-              <button type="button" class="btn-amber-sm" id="finish-list-btn">Done • Generate Link</button>
+          <!-- Completion Card -->
+          <div id="checkin-complete-card" class="complete-box hidden">
+            <div class="complete-badge">🎉 ANSWERS LOCKED</div>
+            <h2 class="complete-title">Now Send Your Reply to the DM!</h2>
+            <p class="section-subtitle">Copy your Reply Link and send it back in the group chat or DM.</p>
+
+            <div class="summary-chips" id="player-summary-chips"></div>
+
+            <div class="share-actions-grid">
+              <button type="button" class="btn-amber" id="copy-response-link-btn">🔗 Copy Reply Link for DM</button>
+              <button type="button" class="btn-secondary" id="copy-response-code-btn">💬 Copy Summary Text</button>
             </div>
-            <div id="all-dates-list" class="all-dates-list"></div>
-          </div>
-        </div>
 
-        <!-- Completion Card -->
-        <div id="checkin-complete-card" class="card complete-card hidden">
-          <div class="complete-badge">🎉 STRAIGHT ANSWERS LOCKED</div>
-          <h2>Thank the Dice Gods — You Actually Answered!</h2>
-          <p class="section-subtitle">Your availability has been added to <strong>The Grid</strong>. Send your response link or code below back to your DM so they don't have to text you 20 times.</p>
-
-          <div class="summary-chips" id="player-summary-chips"></div>
-
-          <div class="share-actions-grid">
-            <button type="button" class="btn-amber" id="copy-response-link-btn">
-              🔗 Copy Response Link (?r=...)
-            </button>
-            <button type="button" class="btn-secondary" id="copy-response-code-btn">
-              📋 Copy Response Code &amp; SMS Summary
-            </button>
+            <div class="complete-footer-actions">
+              <button type="button" class="btn-ghost-xs" id="goto-grid-after-checkin-btn">🟨 View Grid</button>
+              <button type="button" class="btn-ghost-xs" id="edit-answers-btn">✏️ Edit Answers</button>
+            </div>
           </div>
 
-          <div class="complete-footer-actions">
-            <button type="button" class="btn-ghost-sm" id="goto-grid-after-checkin-btn">🟨 View Everyone on The Grid</button>
-            <button type="button" class="btn-ghost-sm" id="edit-answers-btn">✏️ Edit My Answers</button>
-          </div>
-        </div>
-
-        <!-- Satirical Anti-Essay Excuse Trap -->
-        <div class="card anti-essay-card">
-          <div class="anti-essay-header">
-            <span class="anti-essay-badge">🚫 ANTI-ESSAY FIREWALL ACTIVE</span>
-            <span class="anti-essay-count" id="excuses-blocked-counter">0 rambling texts blocked</span>
-          </div>
-          <form id="anti-essay-form" class="anti-essay-form">
-            <label for="anti-essay-input" class="sr-only">Rambling excuse trap</label>
-            <textarea
+          <!-- Subtle 1-Line Anti-Essay Excuse Trap -->
+          <form id="anti-essay-form" class="excuse-trap-inline">
+            <label for="anti-essay-input" class="sr-only">Complicated excuse trap</label>
+            <input
+              type="text"
               id="anti-essay-input"
-              rows="2"
-              placeholder="Type a 5-paragraph rambling excuse about why you might be free after 8:15pm depending on traffic and your aunt's cat..."
-            ></textarea>
-            <button type="submit" class="btn-danger-sm">Send Rambling Text</button>
+              placeholder="Have a complicated excuse? Type it here..."
+              autocomplete="off"
+            />
+            <button type="submit" class="btn-ghost-xs">Send</button>
           </form>
         </div>
       </section>
 
-      <!-- VIEW 2: THE GRID VIEW -->
-      <section id="view-grid" class="view-panel" aria-labelledby="grid-heading">
+      <!-- =========================================================
+           VIEW 2: THE GRID
+           ========================================================= -->
+      <section id="view-grid" class="view-panel" aria-label="The Grid">
         <div class="best-match-banner" id="best-match-banner"></div>
 
         <div class="grid-section">
           <div class="grid-section-header">
-            <div>
-              <h2 id="grid-heading" class="section-title">📅 Date Match Cascade</h2>
-              <p class="section-subtitle">Tap any date tile for the full breakdown &amp; who's flaking.</p>
-            </div>
-            <span class="count-pill" id="dates-shown-pill">0 Dates</span>
+            <h2 class="section-title">📅 Dates</h2>
+            <span class="count-pill" id="dates-shown-pill">0</span>
           </div>
           <div class="cascade-grid" id="date-cascade-grid"></div>
         </div>
 
         <div class="grid-section">
           <div class="grid-section-header">
-            <div>
-              <h2 class="section-title">👥 Party Profiles Nearby</h2>
-              <p class="section-subtitle">Tap a player to inspect stats, send a 🔥 Tap, or copy a passive-aggressive nudge.</p>
-            </div>
-            <span class="count-pill" id="players-shown-pill">0 Players</span>
+            <h2 class="section-title">👥 Party</h2>
+            <span class="count-pill" id="players-shown-pill">0</span>
           </div>
           <div class="cascade-grid" id="party-cascade-grid"></div>
         </div>
       </section>
 
-      <!-- VIEW 3: DM CONTROL VIEW -->
-      <section id="view-dm" class="view-panel" aria-labelledby="dm-heading">
-        <div class="dm-grid-layout">
-          <div class="card">
-            <h1 id="dm-heading" class="section-title">👑 Campaign Control</h1>
-            <p class="section-subtitle">Configure your group's scheduling gauntlet and generate a 1-click GitHub Pages invite link.</p>
-
-            <div class="form-stack">
-              <div class="field-group">
-                <label for="dm-campaign-title">Campaign / One-Shot Title</label>
-                <input type="text" id="dm-campaign-title" maxlength="48" placeholder="e.g. Serge's Holiday D&D Gauntlet" />
-              </div>
-
-              <div class="two-col">
-                <div class="field-group">
-                  <label for="dm-name-input">DM Name</label>
-                  <input type="text" id="dm-name-input" maxlength="28" placeholder="e.g. Dungeon Daddy Serge" />
-                </div>
-                <div class="field-group">
-                  <label for="dm-quorum-input">Quorum Needed (🔥 DTF)</label>
-                  <input type="number" id="dm-quorum-input" min="2" max="12" value="4" />
-                </div>
-              </div>
-
-              <div class="field-group">
-                <label for="dm-duration-select">Typical Session Length</label>
-                <select id="dm-duration-select">
-                  <option value="3 Hours (Tight &amp; Focused)">3 Hours (Tight &amp; Focused)</option>
-                  <option value="4 Hours (Standard Tavern Crawl)">4 Hours (Standard Tavern Crawl)</option>
-                  <option value="5+ Hours (Full Gremlin Mode)">5+ Hours (Full Gremlin Mode)</option>
-                  <option value="All-Day Holiday Marathon">All-Day Holiday Marathon</option>
-                </select>
-              </div>
-
-              <div class="btn-row">
-                <button type="button" class="btn-amber" id="save-campaign-btn">💾 Save Campaign Details</button>
-                <button type="button" class="btn-ghost-sm" id="reset-demo-btn">🎭 Load Serge's Demo Party</button>
-              </div>
-            </div>
+      <!-- =========================================================
+           VIEW 3: DM SETUP (2 Clean Cards)
+           ========================================================= -->
+      <section id="view-dm" class="view-panel" aria-label="DM Setup">
+        <!-- Card 1: Campaign & Dates -->
+        <div class="card">
+          <h2 class="section-title">👑 Campaign &amp; Dates</h2>
+          <div class="field-group" style="margin-top: 12px;">
+            <label for="dm-campaign-title">Campaign Name</label>
+            <input type="text" id="dm-campaign-title" maxlength="48" placeholder="e.g. Serge's Holiday D&D Gauntlet" />
           </div>
 
-          <div class="card">
-            <h2 class="section-title">🎄 Date Builder &amp; Holiday Presets</h2>
-            <p class="section-subtitle">Load a holiday chaos pack or add custom dates/times below.</p>
-
-            <div class="preset-grid">
-              <button type="button" class="btn-preset" data-preset="thanksgiving">🦃 Thanksgiving Gauntlet</button>
-              <button type="button" class="btn-preset" data-preset="december">🎄 Mid-December Chaos</button>
-              <button type="button" class="btn-preset" data-preset="nye">🎆 New Year's Eve Marathon</button>
-              <button type="button" class="btn-preset" data-preset="weekends">📅 Next 4 Weekends</button>
-            </div>
-
-            <div class="custom-date-adder">
-              <div class="two-col">
-                <div class="field-group">
-                  <label for="custom-date-input">Pick Date</label>
-                  <input type="date" id="custom-date-input" />
-                </div>
-                <div class="field-group">
-                  <label for="custom-time-input">Time Slot</label>
-                  <input type="text" id="custom-time-input" value="7:00 PM" placeholder="7:00 PM" />
-                </div>
-              </div>
-
-              <div class="time-pills" aria-label="Quick Time Slots">
-                <button type="button" class="time-pill" data-time="7:00 PM">Fri/Sat 7:00 PM</button>
-                <button type="button" class="time-pill" data-time="2:00 PM">Sat 2:00 PM</button>
-                <button type="button" class="time-pill" data-time="5:00 PM">Sun 5:00 PM</button>
-                <button type="button" class="time-pill" data-time="8:00 PM">Late 8:00 PM</button>
-              </div>
-
-              <div class="adder-footer">
-                <label class="checkbox-inline">
-                  <input type="checkbox" id="custom-holiday-check" checked />
-                  <span>🎄 Tag as Holiday Window</span>
-                </label>
-                <button type="button" class="btn-amber-sm" id="add-custom-date-btn">➕ Add Date</button>
-              </div>
-            </div>
-
-            <div class="dm-date-list" id="dm-date-list"></div>
+          <div class="preset-grid">
+            <button type="button" class="btn-preset" data-preset="thanksgiving">🦃 Thanksgiving</button>
+            <button type="button" class="btn-preset" data-preset="december">🎄 Dec Weekends</button>
+            <button type="button" class="btn-preset" data-preset="nye">🎆 New Year's</button>
+            <button type="button" class="btn-preset" data-preset="weekends">📅 Next Weekends</button>
           </div>
 
-          <div class="card">
-            <h2 class="section-title">🔗 Share Campaign Invite</h2>
-            <p class="section-subtitle">Everything is stored right in the URL — zero server needed. Send this link to the group chat.</p>
-
-            <div class="share-box">
-              <input type="text" id="dm-invite-url-preview" readonly aria-label="Shareable Campaign URL" />
-              <div class="btn-row">
-                <button type="button" class="btn-amber" id="copy-campaign-link-btn">📋 Copy Invite URL</button>
-                <button type="button" class="btn-secondary" id="copy-savage-invite-btn">🔥 Copy Savage Group Text</button>
-              </div>
-            </div>
+          <div class="custom-adder-row">
+            <input type="date" id="custom-date-input" aria-label="Pick Date" />
+            <input type="text" id="custom-time-input" value="7:00 PM" placeholder="7:00 PM" aria-label="Time" />
+            <button type="button" class="btn-amber-sm" id="add-custom-date-btn">➕ Add</button>
           </div>
 
-          <div class="card">
-            <h2 class="section-title">📥 Import Player Response</h2>
-            <p class="section-subtitle">When a player texts back their <code>?r=...</code> link or <code>SCHEDULR:...</code> code, paste it here to merge them onto The Grid.</p>
+          <div class="dm-date-list" id="dm-date-list"></div>
 
-            <div class="form-stack">
-              <textarea id="import-response-input" rows="3" placeholder="Paste https://.../index.html?r=... or SCHEDULR:eyJ... here"></textarea>
-              <div class="btn-row">
-                <button type="button" class="btn-amber" id="import-response-btn">⚡ Merge Into Grid</button>
-                <button type="button" class="btn-ghost-sm" id="clear-players-btn">🗑️ Clear Custom Players</button>
-              </div>
-            </div>
+          <div class="btn-row" style="margin-top: 14px;">
+            <button type="button" class="btn-amber" id="copy-campaign-link-btn">🔗 Copy Invite Link</button>
+            <button type="button" class="btn-secondary" id="copy-savage-invite-btn">💬 Copy Group Text</button>
+          </div>
+        </div>
+
+        <!-- Card 2: Add a Player's Reply -->
+        <div class="card">
+          <h2 class="section-title">📥 Add a Player's Reply</h2>
+          <p class="section-subtitle">Click a player's Reply Link in your chat — or paste their message here — to add their answers to The Grid.</p>
+          <div class="merge-row">
+            <input type="text" id="import-response-input" placeholder="Paste a player's Reply Link or summary message here" aria-label="Player reply link or message" />
+            <button type="button" class="btn-amber-sm" id="import-response-btn">⚡ Add to Grid</button>
+          </div>
+          <div class="btn-row" style="margin-top: 12px;">
+            <button type="button" class="btn-ghost-xs" id="clear-players-btn">🧹 Start Fresh (Clear Sample Party)</button>
+            <button type="button" class="btn-ghost-xs" id="reset-demo-btn">🎭 Load Sample Party</button>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- Mobile Sticky Bottom Tab Bar -->
+    <!-- Mobile Bottom Nav -->
     <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
       <button type="button" class="bottom-tab active" data-view="checkin">
         <span class="tab-icon">⚡</span>
@@ -402,12 +283,12 @@
       </button>
       <button type="button" class="bottom-tab" data-view="dm">
         <span class="tab-icon">👑</span>
-        <span class="tab-text">DM Control</span>
+        <span class="tab-text">DM Setup</span>
       </button>
     </nav>
   </div>
 
-  <!-- DETAIL DRAWER / MODAL -->
+  <!-- DETAIL MODAL -->
   <div id="detail-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
     <div class="modal-sheet">
       <button type="button" class="modal-close" id="detail-modal-close" aria-label="Close modal">✕</button>
@@ -421,27 +302,27 @@
       <div class="roast-icon">🚫📜</div>
       <h2 id="roast-modal-title">WHOA THERE, BARD.</h2>
       <p id="roast-modal-message" class="roast-message"></p>
-      <div class="roast-rule">Schedulr accepts 3 answers only: 🔥 DTF, 🎲 Disadvantage, or 💀 Hard Pass.</div>
+      <div class="roast-rule">Schedulr accepts 3 answers only: 🔥 DTF, 🎲 Maybe, or 💀 Pass.</div>
       <button type="button" class="btn-amber" id="roast-modal-dismiss">Fine, I'll Tap a Button</button>
     </div>
   </div>
 
-  <!-- INVITE PARTY MODAL -->
+  <!-- INVITE MODAL -->
   <div id="invite-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="invite-modal-title">
     <div class="modal-sheet">
       <button type="button" class="modal-close" id="invite-modal-close" aria-label="Close invite modal">✕</button>
-      <h2 id="invite-modal-title" class="section-title">🔗 Invite Your Party to Schedulr</h2>
-      <p class="section-subtitle">Drop this into Discord, iMessage, or WhatsApp so they physically cannot reply with a vague paragraph.</p>
-      <div class="field-group">
-        <label for="invite-modal-url">Direct Check-In Link</label>
+      <h2 id="invite-modal-title" class="section-title">🔗 Invite Your Party</h2>
+      <p class="section-subtitle">Drop this in your group chat. Players tap 3 buttons and send back their Reply Link.</p>
+      <div class="field-group" style="margin-top: 12px;">
+        <label for="invite-modal-url">Invite Link</label>
         <input type="text" id="invite-modal-url" readonly />
       </div>
-      <div class="field-group" style="margin-top: 12px;">
-        <label for="invite-modal-text">Ready-to-Send Group Message</label>
-        <textarea id="invite-modal-text" rows="4" readonly></textarea>
+      <div class="field-group" style="margin-top: 10px;">
+        <label for="invite-modal-text">Group Message</label>
+        <textarea id="invite-modal-text" rows="3" readonly></textarea>
       </div>
       <div class="btn-row" style="margin-top: 14px;">
-        <button type="button" class="btn-amber" id="invite-copy-url-btn">🔗 Copy Link</button>
+        <button type="button" class="btn-amber" id="invite-copy-url-btn">🔗 Copy Invite Link</button>
         <button type="button" class="btn-secondary" id="invite-copy-msg-btn">💬 Copy Group Text</button>
       </div>
     </div>
